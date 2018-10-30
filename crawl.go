@@ -22,16 +22,13 @@ type PttPost struct {
 
 // GetPostInfo parse list of post from certain board for certain pages
 func GetPostInfo(board string, pages int) (post []*PttPostInfo, err error) {
-	var postList []*PttPostInfo
-	var url string
+	url := "https://www.ptt.cc/bbs/" + board + "/index.html"
+	return GetPostInfoURL(url, pages)
+}
 
-	// Check if is url so that recursive works
-	isUrl, err := regexp.MatchString("https.*", board)
-	if isUrl {
-		url = board
-	} else {
-		url = "https://www.ptt.cc/bbs/" + board + "/index.html"
-	}
+// GetPostInfoURL parse list of post from post index url
+func GetPostInfoURL(url string, pages int) (post []*PttPostInfo, err error) {
+	var postList []*PttPostInfo
 
 	// Create seperate offer index in case that post are deleted
 	authorIndex := 0
@@ -82,7 +79,7 @@ func GetPostInfo(board string, pages int) (post []*PttPostInfo, err error) {
 	})
 	// Recursively parse previous page until pages is 0
 	if pages != 0 {
-		nextPostList, _ := GetPostInfo("https://www.ptt.cc"+url, pages-1)
+		nextPostList, _ := GetPostInfoURL("https://www.ptt.cc"+url, pages-1)
 		for _, p := range nextPostList {
 			postList = append(postList, p)
 		}
